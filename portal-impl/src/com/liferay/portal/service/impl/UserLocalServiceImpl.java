@@ -3515,6 +3515,14 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		User user = userPersistence.findByC_EA(companyId, emailAddress);
 
+		String oldEncPwd = user.getPassword();
+
+		if (!user.isPasswordEncrypted()) {
+			oldEncPwd = PasswordEncryptorUtil.encrypt(user.getPassword());
+		}
+
+		passwordTrackerLocalService.trackPassword(user.getUserId(), oldEncPwd);
+
 		PasswordPolicy passwordPolicy = user.getPasswordPolicy();
 
 		String newPassword = StringPool.BLANK;
