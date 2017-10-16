@@ -85,7 +85,6 @@ public class UpgradeProcess_7_0_0 extends UpgradeProcess {
 		upgrade(UpgradeLookAndFeel.class);
 		upgrade(UpgradeMembershipRequest.class);
 		upgrade(UpgradeMessageBoards.class);
-		upgrade(UpgradeMobileDeviceRules.class);
 		upgrade(UpgradeModules.class);
 		upgrade(UpgradeOrganization.class);
 		upgrade(UpgradeOrgLabor.class);
@@ -103,6 +102,7 @@ public class UpgradeProcess_7_0_0 extends UpgradeProcess {
 		upgrade(UpgradeSubscription.class);
 		upgrade(UpgradeWebsite.class);
 
+		upgrade(UpgradeMobileDeviceRules.class);
 		upgrade(UpgradeSharding.class);
 
 		clearIndexesCache();
