@@ -93,10 +93,13 @@ page import="com.liferay.portal.kernel.util.Validator" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %><%@
 page import="com.liferay.portal.kernel.workflow.WorkflowConstants" %><%@
 page import="com.liferay.portal.security.auth.ScreenNameValidatorFactory" %><%@
+page import="com.liferay.portal.util.PropsUtil" %><%@
 page import="com.liferay.portal.util.PropsValues" %>
 
-<%@ page import="java.util.Calendar" %><%@
-page import="java.util.Date" %>
+<%@ page import="java.util.Arrays" %><%@
+page import="java.util.Calendar" %><%@
+page import="java.util.Date" %><%@
+page import="java.util.List" %>
 
 <%@ page import="javax.portlet.WindowState" %>
 

@@ -123,11 +123,10 @@ if (reminderAttempts == null) {
 
 				<aui:input name="redirect" type="hidden" value="<%= redirectURL %>" />
 
-				<c:if test="<%= Validator.isNotNull(user2.getReminderQueryQuestion()) && Validator.isNotNull(user2.getReminderQueryAnswer()) %>">
+				<%
+				String login = null;
 
-					<%
-					String login = null;
-
+				if (Validator.isNotNull(user2.getReminderQueryQuestion()) && Validator.isNotNull(user2.getReminderQueryAnswer())) {
 					if (authType.equals(CompanyConstants.AUTH_TYPE_EA)) {
 						login = user2.getEmailAddress();
 					}
@@ -137,22 +136,30 @@ if (reminderAttempts == null) {
 					else if (authType.equals(CompanyConstants.AUTH_TYPE_ID)) {
 						login = String.valueOf(user2.getUserId());
 					}
-					%>
+				}
+				String reminderQueryQuestion;
 
-					<div class="alert alert-info">
-						<liferay-ui:message arguments="<%= HtmlUtil.escape(login) %>" key="a-new-password-will-be-sent-to-x-if-you-can-correctly-answer-the-following-question" translateArguments="<%= false %>" />
-					</div>
+				if (user2 == null) {
+					String[] defaultQuestions = PropsUtil.getArray(PropsKeys.USERS_REMINDER_QUERIES_QUESTIONS);
+					List<String> portalReminderQueryQuestions = Arrays.asList(defaultQuestions);
+					String emailAddress = ParamUtil.getString(actionRequest, "emailAddress");
 
-					<aui:input autoFocus="<%= true %>" label="<%= HtmlUtil.escape(LanguageUtil.get(request, user2.getReminderQueryQuestion())) %>" name="answer" type="text" />
-				</c:if>
+					int reminderQueryQuestionId = emailAddress.hashCode() % portalReminderQueryQuestions.size();
+					reminderQueryQuestion = portalReminderQueryQuestions.get(reminderQueryQuestionId);
+				}
+				else {
+					reminderQueryQuestion = user2.getReminderQueryQuestion();
+				}
+				%>
+
+				<div class="alert alert-info">
+					<liferay-ui:message arguments="<%= HtmlUtil.escape(login) %>" key="a-new-password-will-be-sent-to-x-if-you-can-correctly-answer-the-following-question" translateArguments="<%= false %>" />
+				</div>
+
+				<aui:input autoFocus="<%= true %>" label="<%= HtmlUtil.escape(LanguageUtil.get(request, reminderQueryQuestion)) %>" name="answer" type="text" />
 
 				<c:choose>
-					<c:when test="<%= PropsValues.USERS_REMINDER_QUERIES_REQUIRED && !user2.hasReminderQuery() %>">
-						<div class="alert alert-info">
-							<liferay-ui:message key="the-password-cannot-be-reset-because-you-have-not-configured-a-reminder-query" />
-						</div>
-					</c:when>
-					<c:otherwise>
+					<c:when test="<%= PropsValues.USERS_REMINDER_QUERIES_REQUIRED %>">
 						<c:if test="<%= reminderAttempts >= 3 %>">
 							<portlet:resourceURL id="/login/captcha" var="captchaURL" />
 
@@ -162,7 +169,7 @@ if (reminderAttempts == null) {
 						<aui:button-row>
 							<aui:button type="submit" value='<%= company.isSendPasswordResetLink() ? "send-password-reset-link" : "send-new-password" %>' />
 						</aui:button-row>
-					</c:otherwise>
+					</c:when>
 				</c:choose>
 			</c:when>
 			<c:otherwise>

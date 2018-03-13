@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
+import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
@@ -41,6 +42,7 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -48,8 +50,12 @@ import com.liferay.portal.util.PropsValues;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
+import javax.portlet.PortletMode;
 import javax.portlet.PortletPreferences;
+import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
+import javax.portlet.PortletURL;
+import javax.portlet.WindowState;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -167,8 +173,27 @@ public class ForgotPasswordMVCActionCommand extends BaseMVCActionCommand {
 					 e instanceof UserLockoutException ||
 					 e instanceof UserReminderQueryException) {
 
-				if (PropsValues.LOGIN_SECURE_FORGOT_PASSWORD) {
-					sendRedirect(actionRequest, actionResponse, null);
+				if (PropsValues.LOGIN_SECURE_FORGOT_PASSWORD &&
+					e instanceof NoSuchUserException) {
+
+					PortletURL portletURL = PortletURLFactoryUtil.create(
+						actionRequest, PortletKeys.LOGIN,
+						PortletRequest.RENDER_PHASE);
+
+					portletURL.setParameter(
+						"mvcRenderCommandName", "/login/forgot_password");
+					portletURL.setParameter("jspPage", "/forgot_password.jsp");
+					portletURL.setPortletMode(PortletMode.VIEW);
+					portletURL.setWindowState(WindowState.MAXIMIZED);
+
+					String portletId = _portal.getPortletId(actionRequest);
+
+					SessionMessages.add(
+						actionRequest,
+						portletId +
+							SessionMessages.KEY_SUFFIX_FORCE_SEND_REDIRECT);
+
+					actionResponse.sendRedirect(portletURL.toString());
 				}
 				else {
 					SessionErrors.add(actionRequest, e.getClass(), e);
